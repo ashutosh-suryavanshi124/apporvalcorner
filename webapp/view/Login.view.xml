@@ -1,0 +1,35 @@
+<mvc:View controllerName="approvalcorner.controller.Login"
+	xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+	xmlns="sap.m">
+	<Page id="loginPage" showHeader="false">
+		<VBox width="100%" height="100%" justifyContent="Center" alignItems="Center">
+			<VBox width="380px" class="loginCard">
+				<Image src="images/reviewnow-logo.svg" 
+                    width="180px" 
+                    class="logo"/>
+				<Title text="{i18n>loginTitle}" 
+                    level="H5" 
+                    textAlign="Center" 
+                    width="100%" 
+                    class="loginSubtitle sapUiSmallMarginBottom"/>
+				<Label text="{i18n>username}"/>
+				<Input id="loginUser" 
+                    placeholder="{i18n>enterUsername}" 
+                    valueLiveUpdate="true"/>
+				<Label text="{i18n>password}" 
+                    class="sapUiSmallMarginTop"/>
+				<Input id="loginPass" 
+                    type="Password" 
+                    placeholder="{i18n>enterPassword}" 
+                    submit="onLogin" 
+                    class="sapUiSmallMarginBottom"/>
+				<Button text="{i18n>login}" 
+                    icon="sap-icon://visits" 
+                    type="Success" 
+                    width="100%" 
+                    press="onLogin" 
+                    class="sapUiMediumMarginTop"/>
+			</VBox>
+		</VBox>
+	</Page>
+</mvc:View>

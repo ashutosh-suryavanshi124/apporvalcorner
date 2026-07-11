@@ -1,0 +1,28 @@
+/* Enter your custom styles here */
+
+.loginWrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8f1ff 0%, #f7faff 55%, #eaf3ff 100%);
+}
+
+.loginCard {
+    background-color: #ffffff;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(0, 84, 173, 0.18);
+    border: 1px solid #e3ecf7;
+}
+
+.loginSubtitle .sapMTitle {
+    color: #6a6d70;
+    font-weight: 400;
+}
+
+.logo{
+    display: block;
+    margin: 0 auto;
+}
+
+.headerRow{
+    background-color: #fff;
+}
