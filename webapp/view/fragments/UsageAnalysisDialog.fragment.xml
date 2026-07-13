@@ -1,0 +1,125 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:uiTable="sap.ui.table">
+	<Dialog
+        id="usageDialog"
+		icon="sap-icon://menu2"
+        title="{usage>/title}"
+        contentWidth="100%"
+        contentHeight="75%"
+        resizable="true"
+        draggable="true">
+		<content>
+			<uiTable:Table
+                id="usageTable"
+                rows="{usage>/Items}"
+				width="auto"
+                selectionMode="None"
+                enableBusyIndicator="true"
+                enableColumnReordering="true">
+				<uiTable:rowSettingsTemplate>
+					<uiTable:RowSettings
+            highlight="{usage>Highlight}"/>
+				</uiTable:rowSettingsTemplate>
+				<uiTable:columns>
+					<uiTable:Column
+                        width="170px"
+                        sortProperty="Tcode"
+                        filterProperty="Tcode">
+						<Label text="Tcode/App"/>
+						<uiTable:template>
+							<Text text="{usage>Tcode}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+                        width="250px"
+                        sortProperty="TcodeDesc"
+                        filterProperty="TcodeDesc">
+						<Label text="Description"/>
+						<uiTable:template>
+							<Text text="{usage>TcodeDesc}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+                        width="90px"
+                        sortProperty="tccount"
+                        filterProperty="tccount"
+                        hAlign="Center">
+						<Label text="Usage"/>
+						<uiTable:template>
+							<Text text="{usage>tccount}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+                        width="120px"
+                        sortProperty="LastUsedon"
+                        filterProperty="LastUsedon">
+						<Label text="Last Used"/>
+						<uiTable:template>
+							<Text text="{usage>LastUsedon}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+                        width="100px"
+                        sortProperty="CriticalTcode"
+                        filterProperty="CriticalTcode"
+                        hAlign="Center">
+						<Label text="Is Critical?"/>
+						<uiTable:template>
+							<ObjectStatus
+                                text="{usage>CriticalTcode}"
+                                state="{= ${usage>CriticalTcode} === 'YES' ? 'Error' : 'Success' }"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+                        width="180px"
+                        sortProperty="LicCat"
+                        filterProperty="LicCat">
+						<Label text="Licensing Category"/>
+						<uiTable:template>
+							<Text text="{usage>LicCat}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column width="150px">
+						<Label text="Action"/>
+						<uiTable:template>
+							<Select
+                                width="100%"
+                                selectedKey="{usage>Action}"
+                                change="onUsageActionChange">
+								<core:Item
+                                    key="Retain"
+                                    text="Retain"/>
+								<core:Item
+                                    key="Lock"
+                                    text="Lock"/>
+							</Select>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column width="auto">
+						<Label text="Comment"/>
+						<uiTable:template>
+							<Input
+                                value="{usage>comments}"
+                                valueState="{usage>CommentState}"
+                                valueStateText="Comment is mandatory"
+                                placeholder="Enter comment"/>
+						</uiTable:template>
+					</uiTable:Column>
+				</uiTable:columns>
+			</uiTable:Table>
+		</content>
+		<buttons>
+			<Button
+                text="Complete and Save"
+                type="Emphasized"
+                icon="sap-icon://accept"
+                press="onUsageSave"/>
+			<Button
+                text="Cancel"
+                icon="sap-icon://decline"
+                press="onUsageDialogClose"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

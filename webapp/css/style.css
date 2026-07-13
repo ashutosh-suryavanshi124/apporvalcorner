@@ -1,8 +1,7 @@
 /* Enter your custom styles here */
 
-.loginWrapper {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #e8f1ff 0%, #f7faff 55%, #eaf3ff 100%);
+.loginPage {
+    background: #eff5ff;
 }
 
 .loginCard {
@@ -25,4 +24,5 @@
 
 .headerRow{
     background-color: #fff;
+    padding: 1rem;
 }

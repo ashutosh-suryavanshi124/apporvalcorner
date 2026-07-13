@@ -103,6 +103,13 @@
           "target": [
             "TargetMain"
           ]
+        },
+        {
+          "name": "ReviewView",
+          "pattern": "Review/{user}/{jobId}/{connector}/{reviewType}/{fullName}",
+          "target": [
+            "TargetReview"
+          ]
         }
       ],
       "targets": {
@@ -119,6 +126,13 @@
           "clearControlAggregation": false,
           "viewId": "Main",
           "viewName": "Main"
+        },
+        "TargetReview": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "Review",
+          "viewName": "Review"
         }
       }
     },

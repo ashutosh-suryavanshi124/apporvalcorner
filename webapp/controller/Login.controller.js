@@ -8,15 +8,15 @@ sap.ui.define([
     var SERVICE_URL = "/sap/opu/odata/TNOW/RNOW_ODATA_SERVICES_SRV/";
     return Controller.extend("approvalcorner.controller.Login", {
         onInit: function () {
-            this.getOwnerComponent().getRouter()
-                .getRoute("LoginView")
-                .attachPatternMatched(this._onRouteMatched, this);
+            this.getOwnerComponent().getRouter().getRoute("LoginView").attachPatternMatched(this._onRouteMatched, this);
             this._restoreSession();
         },
+
         _onRouteMatched: function () {
             this.byId("loginUser").setValue("");
             this.byId("loginPass").setValue("");
         },
+
         onLogin: function () {
             var sUser = this.byId("loginUser").getValue().trim(),
                 sPassword = this.byId("loginPass").getValue();
@@ -26,17 +26,23 @@ sap.ui.define([
             }
             var sAuth = "Basic " + btoa(sUser + ":" + sPassword);
             this.getView().setBusy(true);
+
             var oModel = this._createODataModel(sAuth);
             oModel.metadataLoaded().then(function () {
                 this.getView().setBusy(false);
                 this._saveSession(sUser, sAuth);
-                this.getOwnerComponent().getRouter()
-                    .navTo("MainView", {}, true);
+                this.getOwnerComponent().getRouter().navTo("MainView", {}, true);
             }.bind(this)).catch(function () {
                 this.getView().setBusy(false);
                 MessageBox.error("Invalid username or password.");
             }.bind(this));
         },
+
+        _saveSession: function (sUser, sAuth) {
+            sessionStorage.setItem("rnow_user", sUser);
+            sessionStorage.setItem("rnow_auth", sAuth);
+        },
+
         _restoreSession: function () {
             var sUser = sessionStorage.getItem("rnow_user"),
                 sAuth = sessionStorage.getItem("rnow_auth");
@@ -44,13 +50,9 @@ sap.ui.define([
                 return;
             }
             this._createODataModel(sAuth);
-            this.getOwnerComponent().getRouter()
-                .navTo("MainView", {}, true);
+            this.getOwnerComponent().getRouter().navTo("MainView", {}, true);
         },
-        _saveSession: function (sUser, sAuth) {
-            sessionStorage.setItem("rnow_user", sUser);
-            sessionStorage.setItem("rnow_auth", sAuth);
-        },
+
         _createODataModel: function (sAuth) {
             var oModel = new ODataModel({
                 serviceUrl: SERVICE_URL,
@@ -64,5 +66,6 @@ sap.ui.define([
             this.getOwnerComponent().setModel(oModel);
             return oModel;
         }
+
     });
 });

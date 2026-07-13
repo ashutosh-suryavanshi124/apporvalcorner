@@ -1,40 +1,33 @@
 <mvc:View
     controllerName="approvalcorner.controller.Main"
 	xmlns:mvc="sap.ui.core.mvc"
-	xmlns="sap.m">
-<Page class="sapUiContentPadding" showHeader="false" enableScrolling="true">
-    <content>
-
-        <VBox class="sapUiMediumMarginBottom">
-
-            <!-- Top Row -->
-            <HBox
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-                width="100%"
-                class="headerRow">
-
-                <Image
-                    src="images/reviewnow-logo.svg"
-                    height="2.75rem"
-                    densityAware="false"
-                    class="reviewNowLogo"/>
-
-                <Button
-                    icon="sap-icon://log"
-                    text="Logout"
-                    press="onLogout"
-                    type="Transparent"/>
-
-            </HBox>
-
-            <!-- Page Title -->
-            <Title
-                text="{main>/pageTitle}"
-                level="H3"
-                class="sapUiTinyMarginTop headerRow"/>
-
-        </VBox>
+	xmlns="sap.m"
+	xmlns:uiTable="sap.ui.table">
+	<Page id="mainPage" showHeader="false" enableScrolling="true">
+		<content>
+			<VBox class="sapUiSmallMarginBottom">
+				<HBox
+					justifyContent="SpaceBetween"
+					alignItems="Center"
+					width="100%"
+					class="headerRow">
+					<VBox >
+						<Image
+							src="images/reviewnow-logo.svg"
+							height="2.75rem"
+							densityAware="false"
+							class="reviewNowLogo"/>
+						<Title
+							text="{main>/pageTitle}"
+							level="H3"/>
+					</VBox>
+					<Button
+						icon="sap-icon://log"
+						text="Logout"
+						press="onLogout"
+						type="Transparent"/>
+				</HBox>
+			</VBox>
 			<IconTabBar
                 select="onTabSelect"
                 selectedKey="{main>/selectedKey}">
@@ -43,166 +36,249 @@
 					<IconTabFilter
                         key="New"
                         text="{= 'New (' + (${main>/NewCount} || 0) + ')' }">
-						<Table
-                            id="newTable"
-                            inset="false"
-                            growing="true"
-                            growingThreshold="50"
-                            growingScrollToLoad="true"
-                            items="{main>/New}"
-                            mode="MultiSelect">
-							<columns>
-								<Column hAlign="Center">
-									<Text text="Connector"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Job ID"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="User Name"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Job Name"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Fiscal Year"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Fiscal Quarter"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Review Type"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="No. of Roles"/>
-								</Column>
-							</columns>
-							<items>
-								<ColumnListItem vAlign="Middle">
-									<cells>
-										<Text text="{main>CONNECTOR}"/>
-										<Text text="{main>JOB_ID}"/>
-										<Text text="{main>EUSER}"/>
-										<Text text="{main>JobName}"/>
-										<Text text="{main>ATT_FISCAL}"/>
-										<Text text="{main>ATT_QUARTERLY}"/>
-										<Text text="{main>REVIEW_TYPE}"/>
-										<Text text="{main>RCount}"/>
-									</cells>
-								</ColumnListItem>
-							</items>
-						</Table>
-					</IconTabFilter>
-					<!-- In Progress -->
-					<IconTabFilter
+                            <uiTable:Table
+                                id="newTable"
+                                rows="{main>/New}"
+                                selectionMode="MultiToggle"
+                                rowSelectionChange="onRowSelectionChange"
+                                alternateRowColors="true"
+                                enableBusyIndicator="true"
+                                enableColumnReordering="true">
+                            <uiTable:extension>
+                                <OverflowToolbar>
+                                    <Title text="Approval Items" level="H5"/>
+                                    <ToolbarSpacer/>
+                                    <Button
+                                            icon="sap-icon://refresh"
+                                            text="Refresh"
+                                            type="Transparent"
+                                            press="onNewRefresh"/>
+                                    <Button
+                                            icon="sap-icon://filter"
+                                            text="Filter"
+                                            type="Transparent"
+                                            press="onNewFilter"/>
+                                    <Button
+                                            icon="sap-icon://show"
+                                            text="Review"
+                                            type="Transparent"
+                                            press="onReview"/>
+                                    <Button
+                                            icon="sap-icon://add-employee"
+                                            text="Reassign"
+                                            type="Transparent"
+                                            press="onReassign"/>
+                                </OverflowToolbar>
+                            </uiTable:extension>
+                            <uiTable:columns>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="CONNECTOR"
+                                        filterProperty="CONNECTOR">
+                                    <Label text="Connector"/>
+                                    <uiTable:template>
+                                        <Text text="{main>CONNECTOR}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="JOB_ID"
+                                        filterProperty="JOB_ID">
+                                    <Label text="Job ID"/>
+                                    <uiTable:template>
+                                        <Text text="{main>JOB_ID}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="EUSER"
+                                        filterProperty="EUSER">
+                                    <Label text="User Name"/>
+                                    <uiTable:template>
+                                        <Text text="{main>EUSER}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        width="24rem"
+                                        sortProperty="REVCYCLENAME"
+                                        filterProperty="REVCYCLENAME">
+                                    <Label text="Job Name"/>
+                                    <uiTable:template>
+                                        <Text text="{main>REVCYCLENAME}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="ATT_FISCAL"
+                                        filterProperty="ATT_FISCAL">
+                                    <Label text="Fiscal Year"/>
+                                    <uiTable:template>
+                                        <Text text="{main>ATT_FISCAL}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="ATT_QUARTERLY"
+                                        filterProperty="ATT_QUARTERLY">
+                                    <Label text="Fiscal Quarter"/>
+                                    <uiTable:template>
+                                        <Text text="{main>ATT_QUARTERLY}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="REVIEW_TYPE"
+                                        filterProperty="REVIEW_TYPE">
+                                    <Label text="Review Type"/>
+                                    <uiTable:template>
+                                        <Text text="{main>REVIEW_TYPE}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                                <uiTable:Column
+                                        hAlign="Center"
+                                        sortProperty="RCount"
+                                        filterProperty="RCount">
+                                    <Label text="No. of Roles"/>
+                                    <uiTable:template>
+                                        <Text text="{main>RCount}"/>
+                                    </uiTable:template>
+                                </uiTable:Column>
+                            </uiTable:columns>
+                        </uiTable:Table>
+                    </IconTabFilter>
+			
+                    <!-- In Progress -->
+                    <IconTabFilter
                         key="InProgress"
                         text="{= 'In Progress (' + (${main>/InProgressCount} || 0) + ')' }">
-						<Table
-                            id="inProgressTable"
-                            inset="false"
-                            growing="true"
-                            growingThreshold="50"
-                            growingScrollToLoad="true"
-                            items="{main>/InProgress}"
-                            mode="MultiSelect">
-							<columns>
-								<Column hAlign="Center">
-									<Text text="Connector"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Job ID"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="User Name"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Job Name"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Fiscal Year"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Fiscal Quarter"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Review Type"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="No. of Roles"/>
-								</Column>
-							</columns>
-							<items>
-								<ColumnListItem vAlign="Middle">
-									<cells>
-										<Text text="{main>CONNECTOR}"/>
-										<Text text="{main>JOB_ID}"/>
-										<Text text="{main>EUSER}"/>
-										<Text text="{main>JobName}"/>
-										<Text text="{main>ATT_FISCAL}"/>
-										<Text text="{main>ATT_QUARTERLY}"/>
-										<Text text="{main>REVIEW_TYPE}"/>
-										<Text text="{main>RCount}"/>
-									</cells>
-								</ColumnListItem>
-							</items>
-						</Table>
-					</IconTabFilter>
-					<!-- Closed -->
-					<IconTabFilter
+                        <VBox>
+                            <OverflowToolbar>
+                                <Text text="In Progress Items"></Text>
+                                <ToolbarSpacer />
+                                <Button icon="sap-icon://refresh" text="Refresh" type="Transparent" press="onInProgressRefresh"/>
+                                <Button icon="sap-icon://filter" text="Filter" type="Transparent" press="onInProgressFilter"/>
+                                <Button icon="sap-icon://show" text="Display" type="Transparent" press="onDisplay"/>
+                                <Button icon="sap-icon://forward" text="Reassign" type="Transparent" press="onReassign"/>
+                                <Button icon="sap-icon://locked" text="Lock" type="Transparent" press="onInProgressLock"/>
+                                <Button icon="sap-icon://delete" text="Terminate" type="Transparent" press="onInProgressTerminate"/>
+                            </OverflowToolbar>
+                            <Table
+                                id="inProgressTable"
+                                inset="false"
+                                growing="true"
+                                growingThreshold="50"
+                                growingScrollToLoad="true"
+                                items="{main>/InProgress}"
+                                mode="MultiSelect">
+                                <columns>
+                                    <Column hAlign="Center">
+                                        <Text text="Connector"/>
+                                    </Column>
+                                    <Column hAlign="Center">
+                                        <Text text="Job ID"/>
+                                    </Column>
+                                    <Column hAlign="Center">
+                                        <Text text="User Name"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                        <Text text="Job Name"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                        <Text text="Fiscal Year"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                        <Text text="Fiscal Quarter"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Desktop" demandPopin="true">
+                                        <Text text="Review Type"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Desktop" demandPopin="true">
+                                        <Text text="No. of Roles"/>
+                                    </Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem vAlign="Middle">
+                                        <cells>
+                                            <Text text="{main>CONNECTOR}"/>
+                                            <Text text="{main>JOB_ID}"/>
+                                            <Text text="{main>EUSER}"/>
+                                            <Text text="{main>JobName}"/>
+                                            <Text text="{main>ATT_FISCAL}"/>
+                                            <Text text="{main>ATT_QUARTERLY}"/>
+                                            <Text text="{main>REVIEW_TYPE}"/>
+                                            <Text text="{main>RCount}"/>
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+                    </IconTabFilter>
+                    <!-- Closed -->
+                    <IconTabFilter
                         key="Closed"
                         text="{= 'Closed (' + (${main>/ClosedCount} || 0) + ')' }">
-						<Table
-                            id="closedTable"
-                            inset="false"
-                            growing="true"
-                            growingThreshold="50"
-                            growingScrollToLoad="true"
-                            items="{main>/Closed}"
-                            mode="MultiSelect">
-							<columns>
-								<Column hAlign="Center">
-									<Text text="Connector"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Job ID"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="User Name"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Job Name"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Fiscal Year"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Fiscal Quarter"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="Review Type"/>
-								</Column>
-								<Column hAlign="Center">
-									<Text text="No. of Roles"/>
-								</Column>
-							</columns>
-							<items>
-								<ColumnListItem vAlign="Middle">
-									<cells>
-										<Text text="{main>CONNECTOR}"/>
-										<Text text="{main>JOB_ID}"/>
-										<Text text="{main>EUSER}"/>
-										<Text text="{main>JobName}"/>
-										<Text text="{main>ATT_FISCAL}"/>
-										<Text text="{main>ATT_QUARTERLY}"/>
-										<Text text="{main>REVIEW_TYPE}"/>
-										<Text text="{main>RCount}"/>
-									</cells>
-								</ColumnListItem>
-							</items>
-						</Table>
-					</IconTabFilter>
-				</items>
-			</IconTabBar>
-		</content>
-	</Page>
+                        <VBox>
+                            <OverflowToolbar>
+                                <Text text="Closed Items"></Text>
+                                <ToolbarSpacer />
+                                <Button icon="sap-icon://refresh" text="Refresh" type="Transparent" press="onClosedRefresh"/>
+                                <Button icon="sap-icon://filter" text="Filter" type="Transparent" press="onFilter"/>
+                                <Button icon="sap-icon://show" text="Display" type="Transparent" press="onDisplay"/>
+                            </OverflowToolbar>
+                            <Table
+                                id="closedTable"
+                                inset="false"
+                                growing="true"
+                                growingThreshold="50"
+                                growingScrollToLoad="true"
+                                items="{main>/Closed}"
+                                mode="MultiSelect">
+                                <columns>
+                                    <Column hAlign="Center">
+                                        <Text text="Connector"/>
+                                    </Column>
+                                    <Column hAlign="Center">
+                                        <Text text="Job ID"/>
+                                    </Column>
+                                    <Column hAlign="Center">
+                                        <Text text="User Name"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                        <Text text="Job Name"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                        <Text text="Fiscal Year"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                        <Text text="Fiscal Quarter"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Desktop" demandPopin="true">
+                                        <Text text="Review Type"/>
+                                    </Column>
+                                    <Column hAlign="Center" minScreenWidth="Desktop" demandPopin="true">
+                                        <Text text="No. of Roles"/>
+                                    </Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem vAlign="Middle">
+                                        <cells>
+                                            <Text text="{main>CONNECTOR}"/>
+                                            <Text text="{main>JOB_ID}"/>
+                                            <Text text="{main>EUSER}"/>
+                                            <Text text="{main>JobName}"/>
+                                            <Text text="{main>ATT_FISCAL}"/>
+                                            <Text text="{main>ATT_QUARTERLY}"/>
+                                            <Text text="{main>REVIEW_TYPE}"/>
+                                            <Text text="{main>RCount}"/>
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+    </Page>
 </mvc:View>

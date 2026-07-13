@@ -1,0 +1,170 @@
+<mvc:View
+    controllerName="approvalcorner.controller.Review"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:uiTable="sap.ui.table"
+	xmlns:core="sap.ui.core">
+	<Page id="reviewPage" showHeader="false">
+		<content>
+			<VBox class="sapUiSmallMarginBottom">
+				<HBox
+                    justifyContent="SpaceBetween"
+                    alignItems="Center"
+                    width="100%"
+                    class="headerRow">
+					<VBox>
+						<Image
+                            src="images/reviewnow-logo.svg"
+                            height="2.75rem"
+                            class="reviewNowLogo"/>
+						<Title
+                            text="{review>/pageTitle}"
+                            level="H3"
+                            class="sapUiTinyMarginTop"/>
+					</VBox>
+				</HBox>
+			</VBox>
+			<!-- Toolbar -->
+			<OverflowToolbar >
+				<Title
+                    text="Review Items"
+                    level="H5"/>
+				<ToolbarSpacer/>
+				<Button
+                    icon="sap-icon://accept"
+                    text="Retain"
+                    type="Success"
+                    press="onRetain"/>
+				<Button
+                    icon="sap-icon://decline"
+                    text="Reject"
+                    type="Reject"
+                    press="onRetain"/>
+				<Button
+                    icon="sap-icon://refresh"
+                    text="Refresh"
+                    type="Transparent"
+                    press="onRefresh"/>
+				<Button
+                    icon="sap-icon://filter"
+                    text="Filter"
+                    type="Transparent"
+                    press="onFilter"/>
+				<Button
+                    text="Cancel"
+                   icon="sap-icon://sys-cancel"
+                    type="Transparent"
+                    press="onCancel"/>
+			</OverflowToolbar>
+			<!-- Review Table -->
+			<uiTable:Table
+				id="reviewTable"
+				rows="{review>/Items}"
+				selectionMode="None"
+				enableBusyIndicator="true"
+				enableColumnReordering="true"
+				fixedColumnCount="2">
+				<uiTable:columns>
+					<uiTable:Column
+						hAlign="Center"
+						sortProperty="Role"
+						filterProperty="Role">
+						<Label text="Role/Profile Name"/>
+						<uiTable:template>
+							<Text text="{review>Role}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						sortProperty="RoleDesc"
+						filterProperty="RoleDesc">
+						<Label text="Role/Profile Description"/>
+						<uiTable:template>
+							<Text text="{review>RoleDesc}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						sortProperty="FromDate"
+						filterProperty="FromDate">
+						<Label text="From Date"/>
+						<uiTable:template>
+							<Text text="{review>FromDate}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						sortProperty="ToDate"
+						filterProperty="ToDate">
+						<Label text="To Date"/>
+						<uiTable:template>
+							<Text text="{review>ToDate}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						sortProperty="UtilizationText"
+						filterProperty="UtilizationText">
+						<Label text="Usage Count"/>
+						<uiTable:template>
+							<Link
+							text="{review>UtilizationText}"
+							press="onUtilizedPress"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						sortProperty="LicCat"
+						filterProperty="LicCat">
+						<Label text="Licensing Category"/>
+						<uiTable:template>
+							<Text text="{review>LicCat}"/>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						width="150px">
+						<Label text="Action"/>
+						<uiTable:template>
+							<Select
+								width="100%"
+								selectedKey="{review>Action}"
+								change="onActionChange">
+								<core:Item key="RT" text="Retain"/>
+								<core:Item key="RM" text="Remove"/>
+							</Select>
+						</uiTable:template>
+					</uiTable:Column>
+					<uiTable:Column
+						hAlign="Center"
+						width="250px">
+						<Label text="Comment"/>
+						<uiTable:template>
+							<Input
+								value="{review>Comment}"
+								valueState="{review>CommentState}"
+								valueStateText="Comment is mandatory"
+								placeholder="Enter comment"/>
+						</uiTable:template>
+					</uiTable:Column>
+				</uiTable:columns>
+			</uiTable:Table>
+		</content>
+		<!-- Footer -->
+		<footer>
+			<OverflowToolbar>
+				<ToolbarSpacer/>
+				<Button
+                    text="Save"
+                    icon="sap-icon://save"
+                    type="Emphasized"
+                    press="onSave"/>
+				<Button
+                    text="Submit"
+                    icon="sap-icon://accept"
+                    type="Accept"
+                    press="onSubmit"/>
+			</OverflowToolbar>
+		</footer>
+	</Page>
+</mvc:View>
