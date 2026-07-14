@@ -18,10 +18,7 @@
                 selectionMode="None"
                 enableBusyIndicator="true"
                 enableColumnReordering="true">
-				<uiTable:rowSettingsTemplate>
-					<uiTable:RowSettings
-            highlight="{usage>Highlight}"/>
-				</uiTable:rowSettingsTemplate>
+				
 				<uiTable:columns>
 					<uiTable:Column
                         width="170px"
@@ -33,7 +30,7 @@
 						</uiTable:template>
 					</uiTable:Column>
 					<uiTable:Column
-                        width="250px"
+                        width="20rem"
                         sortProperty="TcodeDesc"
                         filterProperty="TcodeDesc">
 						<Label text="Description"/>
@@ -104,7 +101,8 @@
                                 value="{usage>comments}"
                                 valueState="{usage>CommentState}"
                                 valueStateText="Comment is mandatory"
-                                placeholder="Enter comment"/>
+                                placeholder="Enter comment"
+								liveChange="onUsageCommentChange"/>
 						</uiTable:template>
 					</uiTable:Column>
 				</uiTable:columns>
@@ -115,7 +113,7 @@
                 text="Complete and Save"
                 type="Emphasized"
                 icon="sap-icon://accept"
-                press="onUsageSave"/>
+                press="onUsageCompleteSave"/>
 			<Button
                 text="Cancel"
                 icon="sap-icon://decline"

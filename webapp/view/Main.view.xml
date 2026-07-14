@@ -44,6 +44,7 @@
                                 alternateRowColors="true"
                                 enableBusyIndicator="true"
                                 enableColumnReordering="true">
+
                             <uiTable:extension>
                                 <OverflowToolbar>
                                     <Title text="Approval Items" level="H5"/>
@@ -53,11 +54,20 @@
                                             text="Refresh"
                                             type="Transparent"
                                             press="onNewRefresh"/>
-                                    <Button
-                                            icon="sap-icon://filter"
-                                            text="Filter"
-                                            type="Transparent"
-                                            press="onNewFilter"/>
+                                     <Button
+        id="btnFilter"
+        icon="sap-icon://filter"
+        text="Filter"
+        type="Transparent"
+        press="onToggleFilter"/>
+
+    <SearchField
+        id="searchFilter"
+        width="250px"
+        visible="false"
+        placeholder="Job ID or User"
+        search="onSearch"
+        liveChange="onSearch"/>
                                     <Button
                                             icon="sap-icon://show"
                                             text="Review"

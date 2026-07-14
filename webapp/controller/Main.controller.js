@@ -10,6 +10,8 @@ sap.ui.define([
     return Controller.extend("approvalcorner.controller.Main", {
         onInit: function() {
             var sUser = sessionStorage.getItem("rnow_user");
+            var oRouter = this.getOwnerComponent().getRouter();
+                oRouter.getRoute("MainView").attachPatternMatched(this._onRouteMatched, this);
             var oMainModel = new JSONModel({
                 pageTitle: sUser ? "Approval Corner for " + sUser : "Approval Corner",
                 selectedKey: "New",
@@ -28,6 +30,24 @@ sap.ui.define([
             }), "reassign");
 
             this._loadAllData();
+            this.byId("newTable").clearSelection();
+        },
+
+        _onRouteMatched:function(){
+            this._clearSelections();
+        },
+
+        _clearSelections: function () {
+            var sKey = this.getView().getModel("main").getProperty("/selectedKey");
+            var mTables = {
+                "New": "newTable",
+                "InProgress": "inProgressTable",
+                "Closed": "closedTable"
+            };
+            var oTable = this.byId(mTables[sKey]);
+            if (oTable) {
+                oTable.clearSelection();
+            }
         },
 
         _loadAllData: function () {
@@ -50,6 +70,7 @@ sap.ui.define([
                     var aResults = oData.results || [];
                     oMain.setProperty("/" + sKey, aResults);
                     oMain.setProperty("/" + sKey + "Count", aResults.length);
+                    
                     if (oTable) {
                         oTable.setBusy(false);
                         MessageToast.show(sKey + " data refreshed.");
@@ -91,6 +112,33 @@ sap.ui.define([
                 ],
                 this.byId("newTable")
             );
+        },
+
+        onToggleFilter: function () {
+            var oSearch = this.byId("searchFilter");
+            oSearch.setVisible(!oSearch.getVisible());
+            if (oSearch.getVisible()) {
+                oSearch.focus();
+            }
+        },
+
+        onSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("newValue") ||
+                        oEvent.getParameter("query");
+            var oTable = this.byId("newTable");
+            var oBinding = oTable.getBinding("rows");
+            if (!sValue) {
+                oBinding.filter([]);
+                return;
+            }
+            var oFilter = new sap.ui.model.Filter({
+                filters: [
+                    new Filter("JOB_ID", FilterOperator.Contains, sValue),
+                    new Filter("EUSER", FilterOperator.Contains, sValue)
+                    ],
+                    and: false
+                });
+            oBinding.filter([oFilter]);
         },
 
         onRowSelectionChange: function (oEvent) {

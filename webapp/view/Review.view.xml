@@ -37,19 +37,27 @@
                     press="onRetain"/>
 				<Button
                     icon="sap-icon://decline"
-                    text="Reject"
+                    text="Remove"
                     type="Reject"
-                    press="onRetain"/>
+                    press="onRemove"/>
 				<Button
                     icon="sap-icon://refresh"
                     text="Refresh"
                     type="Transparent"
                     press="onRefresh"/>
-				<Button
-                    icon="sap-icon://filter"
-                    text="Filter"
-                    type="Transparent"
-                    press="onFilter"/>
+				 <Button
+					id="reviewPageFilter"
+					icon="sap-icon://filter"
+					text="Filter"
+					type="Transparent"
+					press="onToggleFilter"/>
+					<SearchField
+    id="reviewFilter"
+    visible="false"
+    width="250px"
+	placeholder="Role or Description"
+    search="onSearch"
+    liveChange="onSearch"/>
 				<Button
                     text="Cancel"
                    icon="sap-icon://sys-cancel"
@@ -60,7 +68,7 @@
 			<uiTable:Table
 				id="reviewTable"
 				rows="{review>/Items}"
-				selectionMode="None"
+				selectionMode="MultiToggle"
 				enableBusyIndicator="true"
 				enableColumnReordering="true"
 				fixedColumnCount="2">
@@ -68,7 +76,8 @@
 					<uiTable:Column
 						hAlign="Center"
 						sortProperty="Role"
-						filterProperty="Role">
+						filterProperty="Role"
+						width="17rem">
 						<Label text="Role/Profile Name"/>
 						<uiTable:template>
 							<Text text="{review>Role}"/>
@@ -77,7 +86,8 @@
 					<uiTable:Column
 						hAlign="Center"
 						sortProperty="RoleDesc"
-						filterProperty="RoleDesc">
+						filterProperty="RoleDesc"
+						width="26rem">
 						<Label text="Role/Profile Description"/>
 						<uiTable:template>
 							<Text text="{review>RoleDesc}"/>
@@ -86,7 +96,8 @@
 					<uiTable:Column
 						hAlign="Center"
 						sortProperty="FromDate"
-						filterProperty="FromDate">
+						filterProperty="FromDate"
+						>
 						<Label text="From Date"/>
 						<uiTable:template>
 							<Text text="{review>FromDate}"/>
@@ -95,7 +106,8 @@
 					<uiTable:Column
 						hAlign="Center"
 						sortProperty="ToDate"
-						filterProperty="ToDate">
+						filterProperty="ToDate"
+						>
 						<Label text="To Date"/>
 						<uiTable:template>
 							<Text text="{review>ToDate}"/>
@@ -104,7 +116,8 @@
 					<uiTable:Column
 						hAlign="Center"
 						sortProperty="UtilizationText"
-						filterProperty="UtilizationText">
+						filterProperty="UtilizationText"
+						>
 						<Label text="Usage Count"/>
 						<uiTable:template>
 							<Link
@@ -115,7 +128,8 @@
 					<uiTable:Column
 						hAlign="Center"
 						sortProperty="LicCat"
-						filterProperty="LicCat">
+						filterProperty="LicCat"
+						width="9rem">
 						<Label text="Licensing Category"/>
 						<uiTable:template>
 							<Text text="{review>LicCat}"/>
@@ -123,7 +137,7 @@
 					</uiTable:Column>
 					<uiTable:Column
 						hAlign="Center"
-						width="150px">
+						width="7rem">
 						<Label text="Action"/>
 						<uiTable:template>
 							<Select
@@ -141,10 +155,11 @@
 						<Label text="Comment"/>
 						<uiTable:template>
 							<Input
-								value="{review>Comment}"
-								valueState="{review>CommentState}"
-								valueStateText="Comment is mandatory"
-								placeholder="Enter comment"/>
+    value="{review>Comment}"
+    valueState="{review>CommentState}"
+    valueStateText="Comment is mandatory"
+    placeholder="Enter comment"
+    liveChange="onCommentChange"/>
 						</uiTable:template>
 					</uiTable:Column>
 				</uiTable:columns>

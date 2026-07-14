@@ -3,102 +3,172 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], function(Controller, JSONModel, Filter, FilterOperator, MessageToast, MessageBox) {
+    "sap/m/MessageToast"
+], function (Controller, JSONModel, Filter, FilterOperator, MessageToast) {
     "use strict";
+
     return Controller.extend("approvalcorner.controller.Review", {
 
-        onInit: function() {
-            this.getOwnerComponent().getRouter().getRoute("ReviewView").attachPatternMatched(this._onRouteMatched, this);
-            this._aSavedItems = [];
+        onInit: function () {
+            this.getOwnerComponent().getRouter()
+                .getRoute("ReviewView")
+                .attachPatternMatched(this._onRouteMatched, this);
+
             var oUsageModel = new JSONModel({
                 title: "",
                 Items: []
             });
+
             this.getView().setModel(oUsageModel, "usage");
         },
 
-        _onRouteMatched: function(oEvent) {
+        _onRouteMatched: function (oEvent) {
             var oArgs = oEvent.getParameter("arguments");
             this._sUser = decodeURIComponent(oArgs.user);
             this._sJobId = decodeURIComponent(oArgs.jobId);
             this._sConnector = decodeURIComponent(oArgs.connector);
             this._sReviewType = decodeURIComponent(oArgs.reviewType);
             this._sFullName = decodeURIComponent(oArgs.fullName);
-            
+
             var oReviewModel = new JSONModel({
-                pageTitle: this._sReviewType +
-                    " Review of : " +
+                pageTitle:
+                    this._sReviewType +
+                    " Review of: " +
                     this._sUser +
                     " (" +
                     this._sFullName +
-                    ") (" + "Job ID # " + this._sJobId + ")",
+                    ") - Job ID #" +
+                    this._sJobId,
                 Items: []
             });
+
             this.getView().setModel(oReviewModel, "review");
             this._loadReviewData();
         },
 
-        onRefresh: function() {
-            this._loadReviewData();
+        onRefresh: function () {
+           this._loadReviewData(true);
         },
 
-        _loadReviewData: function() {
+      _loadReviewData: function (bShowToast) {
             var oModel = this.getOwnerComponent().getModel();
             this.getView().setBusy(true);
             oModel.read("/RNOW_ReviewDetailSet", {
-               filters: [
+                filters: [
                     new Filter("EUser", FilterOperator.EQ, this._sUser),
                     new Filter("JobId", FilterOperator.EQ, this._sJobId),
                     new Filter("Connector", FilterOperator.EQ, this._sConnector)
                 ],
-                success: function(oData) {
-                    var aData = oData.results || [];
-                    this.getView().getModel("review").setProperty("/Items", aData);
+                success: function (oData) {
+                    this.getView().getModel("review").setProperty("/Items", oData.results || []);
+                    this.byId("reviewTable").clearSelection();
                     this.getView().setBusy(false);
+                    if (bShowToast) {
+                        setTimeout(function () {
+                            MessageToast.show("Review data refreshed successfully.");
+                        }, 100);
+                    }
                 }.bind(this),
-                error: function() {
+                error: function () {
                     this.getView().setBusy(false);
                     MessageToast.show("Unable to load review details.");
                 }.bind(this)
             });
         },
 
-        onSave: function () {
-            if (!this._validateReview()) {
+        onToggleFilter: function () {
+            var oSearch = this.byId("reviewFilter");
+            oSearch.setVisible(!oSearch.getVisible());
+            if (oSearch.getVisible()) {
+                oSearch.focus();
+            }
+        },
+
+        onSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("newValue") ||
+                        oEvent.getParameter("query");
+            var oTable = this.byId("reviewTable");
+            var oBinding = oTable.getBinding("rows");
+            if (!sValue) {
+                oBinding.filter([]);
                 return;
             }
-            var aItems = this.getView().getModel("review").getProperty("/Items");
-            this._aSavedItems = JSON.parse(JSON.stringify(aItems));
-            MessageToast.show("Changes saved locally.");
+            var oFilter = new Filter({
+                filters: [
+                    new Filter("Role", FilterOperator.Contains, sValue),
+                    new Filter("RoleDesc", FilterOperator.Contains, sValue)
+                ],
+                and: false
+            });
+            oBinding.filter([oFilter]);
+        },
+
+        onSave: function () {
+            
         },
 
         onSubmit: function () {
-            if (!this._validateReview()) {
-                return;
-            }
-            var aItems = this.getView().getModel("review").getProperty("/Items");
-            MessageBox.confirm("Submit review to backend?", {
-                actions: [
-                    MessageBox.Action.OK,
-                    MessageBox.Action.CANCEL
-                ],
-                emphasizedAction: MessageBox.Action.OK,
-                onClose: function (sAction) {
-                    if (sAction !== MessageBox.Action.OK) {
-                        return;
-                    }
-                }.bind(this)
-            });
+            
         },
 
-        onCancel: function() {
+        onCancel: function () {
             this.getOwnerComponent().getRouter().navTo("MainView", {}, true);
+        },
+
+        onRetain: function () {
+            this._updateSelectedRows("RT");
+        },
+
+        onRemove: function () {
+            this._updateSelectedRows("RM");
+        },
+
+        _updateSelectedRows: function (sAction) {
+
+            var oTable = this.byId("reviewTable"),
+                oModel = this.getView().getModel("review"),
+                aSelectedIndices = oTable.getSelectedIndices();
+            if (aSelectedIndices.length === 0) {
+                MessageToast.show("Please select at least one record.");
+                return;
+            }
+            aSelectedIndices.forEach(function (iIndex) {
+                var sPath = oTable.getContextByIndex(iIndex).getPath();
+                oModel.setProperty(sPath + "/Action", sAction);
+                this._validateCommentForRow(oModel, sPath);
+            }.bind(this));
+        },
+
+        onActionChange: function (oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("review"),
+                oModel = oContext.getModel(),
+                sPath = oContext.getPath(),
+                sAction = oEvent.getSource().getSelectedKey();
+            oModel.setProperty(sPath + "/Action", sAction);
+            this._validateCommentForRow(oModel, sPath);
+        },
+
+        onCommentChange: function (oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("review"),
+                oModel = oContext.getModel(),
+                sPath = oContext.getPath(),
+                sValue = oEvent.getParameter("newValue");
+            oModel.setProperty(sPath + "/Comment", sValue);
+            this._validateCommentForRow(oModel, sPath);
+        },
+
+        _validateCommentForRow: function (oModel, sPath) {
+            var sComment = oModel.getProperty(sPath + "/Comment");
+            if (sComment && sComment.trim()) {
+                oModel.setProperty(sPath + "/CommentState", "None");
+            } else {
+                oModel.setProperty(sPath + "/CommentState", "Error");
+            }
         },
 
         onUtilizedPress: function (oEvent) {
             var oRole = oEvent.getSource().getBindingContext("review").getObject();
+
             this._oSelectedRole = oRole;
             if (!this._oUsageDialog) {
                 this._oUsageDialog = sap.ui.xmlfragment(
@@ -116,89 +186,123 @@ sap.ui.define([
             this._oUsageDialog.open();
         },
 
-       _loadUsageData: function (oRole) {
+        _loadUsageData: function (oRole) {
             var oModel = this.getOwnerComponent().getModel();
+            this._oUsageDialog.setBusy(true);
             var aFilters = [
                 new Filter("Rfcdest", FilterOperator.EQ, this._sConnector),
                 new Filter("EUSER", FilterOperator.EQ, this._sUser),
                 new Filter("JOB_ID", FilterOperator.EQ, this._sJobId),
                 new Filter("AgrName", FilterOperator.EQ, oRole.Role)
             ];
-
             oModel.read("/utilized_TcodesSet", {
                 filters: aFilters,
                 success: function (oData) {
-
-                var aItems = oData.results || [];
-                aItems.forEach(function (oItem) {
-                    oItem.Highlight = oItem.CriticalTcode === "YES" ? "Error" : "None";
-                });
-                this.getView().getModel("usage").setProperty("/Items", aItems);
-            }.bind(this),
+                    var aItems = oData.results || [];
+                    aItems.forEach(function (oItem) {
+                        oItem.Highlight = oItem.CriticalTcode === "YES" ? "Error" : "None";
+                    });
+                    this.getView().getModel("usage").setProperty("/Items", aItems);
+                    this._oUsageDialog.setBusy(false);
+                }.bind(this),
                 error: function (oError) {
+                    this._oUsageDialog.setBusy(false);
                     MessageToast.show("Unable to load usage analysis.");
-                    console.error(oError);
-                }
+                }.bind(this)
             });
         },
 
-        onActionChange: function(oEvent) {
-            var oContext = oEvent.getSource().getBindingContext("review"),
+        onUsageActionChange: function (oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("usage"),
                 oModel = oContext.getModel(),
                 sPath = oContext.getPath(),
-                sAction = oEvent.getSource().getSelectedKey(),
-                sComment = oModel.getProperty(sPath + "/Comment");
+                sAction = oEvent.getSource().getSelectedKey();
             oModel.setProperty(sPath + "/Action", sAction);
-            oModel.setProperty(sPath + "/_changed", true);
-            if (!sComment || !sComment.trim()) {
-                oModel.setProperty(sPath + "/CommentState", "Error");
-            } else {
-                oModel.setProperty(sPath + "/CommentState", "None");
-            }
+            this._validateUsageComment(oModel, sPath);
         },
 
-        onCommentChange: function(oEvent) {
-            var oContext = oEvent.getSource().getBindingContext("review"),
+        onUsageCommentChange: function (oEvent) {
+            var oContext = oEvent.getSource().getBindingContext("usage"),
                 oModel = oContext.getModel(),
                 sPath = oContext.getPath(),
                 sValue = oEvent.getParameter("value");
-            oModel.setProperty(sPath + "/Comment", sValue);
-            oModel.setProperty(sPath + "/_changed", true);
-            if (sValue && sValue.trim()) {
-                oModel.setProperty(sPath + "/CommentState", "None");
-            } else {
-                oModel.setProperty(sPath + "/CommentState", "Error");
-            }
+            oModel.setProperty(sPath + "/comments", sValue);
+            this._validateUsageComment(oModel, sPath);
         },
 
-        _validateReview: function() {
-            var oModel = this.getView().getModel("review"),
-                aItems = oModel.getProperty("/Items"),
-                bValid = true;
-            aItems.forEach(function(oItem, i) {
-                if (oItem._changed && (!oItem.Comment || !oItem.Comment.trim())) {
-                    oModel.setProperty("/Items/" + i + "/CommentState", "Error");
-                    bValid = false;
+        _validateUsageComment: function (oModel, sPath) {
+            var sAction = oModel.getProperty(sPath + "/Action");
+            var sComment = oModel.getProperty(sPath + "/comments");
+            if (sAction && sAction.trim()) {
+                if (!sComment || !sComment.trim()) {
+                    oModel.setProperty(sPath + "/CommentState", "Error");
+                } else {
+                    oModel.setProperty(sPath + "/CommentState", "None");
                 }
-            });
-            if (!bValid) {
-                MessageBox.error("Comment is mandatory for all modified rows.");
+            } else {
+                // No action selected -> no validation
+                oModel.setProperty(sPath + "/CommentState", "None");
             }
-            return bValid;
         },
 
-        onRetain: function() {
-            var aItems = this.byId("reviewTable")
-                .getSelectedItems();
-            aItems.forEach(function(oItem) {
-                oItem.getBindingContext("review").getObject().ActionDesc = "Retain";
-            });
-            this.getView().getModel("review").refresh(true);
-        },
-
-        onUsageDialogClose: function() {
+        onUsageDialogClose: function () {
             this._oUsageDialog.close();
+        },
+
+        onUsageCompleteSave: function () {
+            var oUsageModel = this.getView().getModel("usage");
+            var aItems = oUsageModel.getProperty("/Items");
+            var oModel = this.getOwnerComponent().getModel();
+
+            for (var i = 0; i < aItems.length; i++) {
+                this._validateUsageComment(oUsageModel, "/Items/" + i);
+                if (oUsageModel.getProperty("/Items/" + i + "/CommentState") === "Error") {
+                    MessageToast.show("Please enter comments for all selected actions.");
+                    return;
+                }
+            }
+
+            this._oUsageDialog.setBusy(true);
+            var iPending = aItems.length;
+            var bError = false;
+            aItems.forEach(function (oItem) {
+                var oPayload = Object.assign({}, oItem);
+                delete oPayload.Highlight;
+                delete oPayload.CommentState;
+
+                var sPath =
+                    "/utilized_TcodesSet(" +
+                    "LOGINUSER='" + encodeURIComponent(oItem.LOGINUSER) + "'," +
+                    "CONNECTOR='" + encodeURIComponent(oItem.CONNECTOR) + "'," +
+                    "JOB_ID='" + encodeURIComponent(oItem.JOB_ID) + "'," +
+                    "EUSER='" + encodeURIComponent(oItem.EUSER) + "'," +
+                    "Rfcdest='" + encodeURIComponent(oItem.Rfcdest) + "'," +
+                    "Bname='" + encodeURIComponent(oItem.Bname) + "'," +
+                    "JobId='" + encodeURIComponent(oItem.JobId) + "'," +
+                    "AgrName='" + encodeURIComponent(oItem.AgrName) + "'," +
+                    "Tcode='" + encodeURIComponent(oItem.Tcode) + "'" +
+                    ")";
+
+                oModel.update(sPath, oPayload, {
+                    success: function () {
+                        iPending--;
+                        if (iPending === 0 && !bError) {
+                            this._oUsageDialog.setBusy(false);
+                            this._oUsageDialog.close();
+                            MessageToast.show("Usage details updated successfully.");
+                        }
+                    }.bind(this),
+                    error: function () {
+                        if (!bError) {
+                            bError = true;
+                            this._oUsageDialog.setBusy(false);
+                            MessageToast.show("Failed to update usage details.");
+                        }
+                    }.bind(this)
+                });
+            }.bind(this));
+
         }
-        
+
     });
 });
